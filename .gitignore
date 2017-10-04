@@ -1,2 +1,8 @@
 .DS_Store
-OnTheMap.xcodeproj/xcuserdata/roselloryan.xcuserdatad/xcschemes/OnTheMap.xcscheme
+.svn
+build
+DerivedData
+*.xcodeproj/*.mode1v3
+*.xcodeproj/*.pbxuser
+*.xcodeproj/project.xcworkspace/*
+*.xcodeproj/xcuserdata/*
