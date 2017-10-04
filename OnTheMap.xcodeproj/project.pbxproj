@@ -13,6 +13,8 @@
 		1B82A7EC1F82FC3D00EDA4C0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B82A7EA1F82FC3D00EDA4C0 /* LaunchScreen.storyboard */; };
 		1B82A7F41F82FC5100EDA4C0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B82A7F31F82FC5100EDA4C0 /* Constants.swift */; };
 		1BB5927B1F83FC4C00582BC2 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB5927A1F83FC4C00582BC2 /* LoginViewController.swift */; };
+		1BC3814B1F848169005F78C3 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC3814A1F848169005F78C3 /* GradientView.swift */; };
+		1BC3814D1F854516005F78C3 /* OTMClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC3814C1F854516005F78C3 /* OTMClient.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +26,8 @@
 		1B82A7ED1F82FC3D00EDA4C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1B82A7F31F82FC5100EDA4C0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		1BB5927A1F83FC4C00582BC2 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		1BC3814A1F848169005F78C3 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
+		1BC3814C1F854516005F78C3 /* OTMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +80,7 @@
 			isa = PBXGroup;
 			children = (
 				1B82A7F31F82FC5100EDA4C0 /* Constants.swift */,
+				1BC3814C1F854516005F78C3 /* OTMClient.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -83,6 +88,7 @@
 		1B82A7F81F830E3200EDA4C0 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1BC3814A1F848169005F78C3 /* GradientView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -173,6 +179,8 @@
 			files = (
 				1BB5927B1F83FC4C00582BC2 /* LoginViewController.swift in Sources */,
 				1B82A7E21F82FC3D00EDA4C0 /* AppDelegate.swift in Sources */,
+				1BC3814D1F854516005F78C3 /* OTMClient.swift in Sources */,
+				1BC3814B1F848169005F78C3 /* GradientView.swift in Sources */,
 				1B82A7F41F82FC5100EDA4C0 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

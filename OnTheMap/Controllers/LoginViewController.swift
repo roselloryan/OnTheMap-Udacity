@@ -2,7 +2,8 @@ import UIKit
 
 class LoginViewController: UIViewController {
     
-
+    var gradientView: GradientView!
+    
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     
@@ -54,10 +55,9 @@ class LoginViewController: UIViewController {
     
     // MARK: Gradient method
     func addGradientToView() {
-        let gLayer = CAGradientLayer()
-        gLayer.frame = view.bounds
-        gLayer.colors = [UIColor(red: 255/255, green: 150/255, blue: 0, alpha: 1).cgColor, UIColor(red: 255/255, green: 95/255, blue: 0, alpha: 1).cgColor]
-        view.layer.insertSublayer(gLayer, at: 0)
+        
+        gradientView = GradientView.init(frame: view.bounds)
+        view.insertSubview(gradientView, at: 0)
     }
     
     // MARK: Tap Gesture Method
@@ -65,7 +65,7 @@ class LoginViewController: UIViewController {
         let tapRecognizer = UITapGestureRecognizer.init(target: self, action: #selector(resignAnyFirstResponder))
         view.addGestureRecognizer(tapRecognizer)
     }
-
+    
     
     
     /*
@@ -99,3 +99,5 @@ extension LoginViewController: UITextFieldDelegate {
         return true
     }
 }
+
+

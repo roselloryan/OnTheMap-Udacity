@@ -1,21 +1,30 @@
-//
-//  GradientView.swift
-//  OnTheMap
-//
-//  Created by RYAN ROSELLO on 10/3/17.
-//  Copyright © 2017 RYAN ROSELLO. All rights reserved.
-//
-
 import UIKit
 
 class GradientView: UIView {
 
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupView()
     }
-    */
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setupView()
+    }
+    
+    private func setupView() {
+        autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        
+        guard let theLayer = self.layer as? CAGradientLayer else {
+            return;
+        }
+        
+        theLayer.colors = [UIColor(red: 255/255, green: 150/255, blue: 0, alpha: 1).cgColor, UIColor(red: 255/255, green: 95/255, blue: 0, alpha: 1).cgColor]
+        theLayer.frame = self.bounds
+    }
+
+    override class var layerClass: AnyClass {
+        return CAGradientLayer.self
+    }
 
 }
