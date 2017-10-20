@@ -7,17 +7,33 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B15496E1F991D3B001280DC /* OTMAddLocationMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B15496D1F991D3B001280DC /* OTMAddLocationMapViewController.swift */; };
+		1B497E091F9121BF00E67865 /* UIViewControllerExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B497E081F9121BF00E67865 /* UIViewControllerExtension.swift */; };
+		1B497E0B1F912A2000E67865 /* OTMDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B497E0A1F912A2000E67865 /* OTMDataStore.swift */; };
+		1B64E1D01F968A9A00BDD24C /* TestAnnotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B64E1CF1F968A9A00BDD24C /* TestAnnotation.swift */; };
+		1B64E20E1F97D81300BDD24C /* OTMAddLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B64E20D1F97D81300BDD24C /* OTMAddLocationViewController.swift */; };
+		1B6A14CD1F8FE3B100153FFF /* OTMTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6A14CC1F8FE3B100153FFF /* OTMTableViewController.swift */; };
 		1B82A7E21F82FC3D00EDA4C0 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B82A7E11F82FC3D00EDA4C0 /* AppDelegate.swift */; };
 		1B82A7E71F82FC3D00EDA4C0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B82A7E51F82FC3D00EDA4C0 /* Main.storyboard */; };
 		1B82A7E91F82FC3D00EDA4C0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1B82A7E81F82FC3D00EDA4C0 /* Assets.xcassets */; };
 		1B82A7EC1F82FC3D00EDA4C0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1B82A7EA1F82FC3D00EDA4C0 /* LaunchScreen.storyboard */; };
 		1B82A7F41F82FC5100EDA4C0 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B82A7F31F82FC5100EDA4C0 /* Constants.swift */; };
+		1BADAC871F8FEFB40017FDA2 /* OTMStudentLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BADAC861F8FEFB40017FDA2 /* OTMStudentLocation.swift */; };
+		1BADAC891F902E3C0017FDA2 /* OTMMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BADAC881F902E3C0017FDA2 /* OTMMapViewController.swift */; };
 		1BB5927B1F83FC4C00582BC2 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB5927A1F83FC4C00582BC2 /* LoginViewController.swift */; };
+		1BBE930C1F952F0000048DC0 /* OTMTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BBE930B1F952F0000048DC0 /* OTMTableViewCell.swift */; };
 		1BC3814B1F848169005F78C3 /* GradientView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC3814A1F848169005F78C3 /* GradientView.swift */; };
 		1BC3814D1F854516005F78C3 /* OTMClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC3814C1F854516005F78C3 /* OTMClient.swift */; };
+		B25C02F8BE228C92BD9E860F /* Pods_OnTheMap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9FAB11B326FEAA1CEF8010F6 /* Pods_OnTheMap.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1B15496D1F991D3B001280DC /* OTMAddLocationMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMAddLocationMapViewController.swift; sourceTree = "<group>"; };
+		1B497E081F9121BF00E67865 /* UIViewControllerExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtension.swift; sourceTree = "<group>"; };
+		1B497E0A1F912A2000E67865 /* OTMDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMDataStore.swift; sourceTree = "<group>"; };
+		1B64E1CF1F968A9A00BDD24C /* TestAnnotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAnnotation.swift; sourceTree = "<group>"; };
+		1B64E20D1F97D81300BDD24C /* OTMAddLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMAddLocationViewController.swift; sourceTree = "<group>"; };
+		1B6A14CC1F8FE3B100153FFF /* OTMTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMTableViewController.swift; sourceTree = "<group>"; };
 		1B82A7DE1F82FC3D00EDA4C0 /* OnTheMap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OnTheMap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1B82A7E11F82FC3D00EDA4C0 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		1B82A7E61F82FC3D00EDA4C0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -25,9 +41,15 @@
 		1B82A7EB1F82FC3D00EDA4C0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1B82A7ED1F82FC3D00EDA4C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1B82A7F31F82FC5100EDA4C0 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		1BADAC861F8FEFB40017FDA2 /* OTMStudentLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMStudentLocation.swift; sourceTree = "<group>"; };
+		1BADAC881F902E3C0017FDA2 /* OTMMapViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMMapViewController.swift; sourceTree = "<group>"; };
 		1BB5927A1F83FC4C00582BC2 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		1BBE930B1F952F0000048DC0 /* OTMTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMTableViewCell.swift; sourceTree = "<group>"; };
 		1BC3814A1F848169005F78C3 /* GradientView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientView.swift; sourceTree = "<group>"; };
 		1BC3814C1F854516005F78C3 /* OTMClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OTMClient.swift; sourceTree = "<group>"; };
+		37668851C46B959558F0F82F /* Pods-OnTheMap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnTheMap.release.xcconfig"; path = "Pods/Target Support Files/Pods-OnTheMap/Pods-OnTheMap.release.xcconfig"; sourceTree = "<group>"; };
+		9FAB11B326FEAA1CEF8010F6 /* Pods_OnTheMap.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_OnTheMap.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F7A7642474898974704F7228 /* Pods-OnTheMap.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-OnTheMap.debug.xcconfig"; path = "Pods/Target Support Files/Pods-OnTheMap/Pods-OnTheMap.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +57,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B25C02F8BE228C92BD9E860F /* Pods_OnTheMap.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +69,8 @@
 			children = (
 				1B82A7E01F82FC3D00EDA4C0 /* OnTheMap */,
 				1B82A7DF1F82FC3D00EDA4C0 /* Products */,
+				1B9FFEF01F8D2A180039B953 /* Frameworks */,
+				9A55C321AC064D54FBB72FB9 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,7 +96,12 @@
 		1B82A7F51F830DFB00EDA4C0 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				1B497E081F9121BF00E67865 /* UIViewControllerExtension.swift */,
 				1BB5927A1F83FC4C00582BC2 /* LoginViewController.swift */,
+				1B6A14CC1F8FE3B100153FFF /* OTMTableViewController.swift */,
+				1BADAC881F902E3C0017FDA2 /* OTMMapViewController.swift */,
+				1B64E20D1F97D81300BDD24C /* OTMAddLocationViewController.swift */,
+				1B15496D1F991D3B001280DC /* OTMAddLocationMapViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -81,6 +111,9 @@
 			children = (
 				1B82A7F31F82FC5100EDA4C0 /* Constants.swift */,
 				1BC3814C1F854516005F78C3 /* OTMClient.swift */,
+				1BADAC861F8FEFB40017FDA2 /* OTMStudentLocation.swift */,
+				1B497E0A1F912A2000E67865 /* OTMDataStore.swift */,
+				1B64E1CF1F968A9A00BDD24C /* TestAnnotation.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -89,6 +122,7 @@
 			isa = PBXGroup;
 			children = (
 				1BC3814A1F848169005F78C3 /* GradientView.swift */,
+				1BBE930B1F952F0000048DC0 /* OTMTableViewCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -105,6 +139,23 @@
 			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		1B9FFEF01F8D2A180039B953 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9FAB11B326FEAA1CEF8010F6 /* Pods_OnTheMap.framework */,
+			);
+			path = Frameworks;
+			sourceTree = "<group>";
+		};
+		9A55C321AC064D54FBB72FB9 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				F7A7642474898974704F7228 /* Pods-OnTheMap.debug.xcconfig */,
+				37668851C46B959558F0F82F /* Pods-OnTheMap.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -112,9 +163,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1B82A7F01F82FC3D00EDA4C0 /* Build configuration list for PBXNativeTarget "OnTheMap" */;
 			buildPhases = (
+				F533C907E2B59FBCAC9459EF /* [CP] Check Pods Manifest.lock */,
 				1B82A7DA1F82FC3D00EDA4C0 /* Sources */,
 				1B82A7DB1F82FC3D00EDA4C0 /* Frameworks */,
 				1B82A7DC1F82FC3D00EDA4C0 /* Resources */,
+				EF219EBDD9B21500D9906175 /* [CP] Embed Pods Frameworks */,
+				79F60D4E8FCD9E4AB1836D94 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -172,15 +226,90 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		79F60D4E8FCD9E4AB1836D94 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OnTheMap/Pods-OnTheMap-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		EF219EBDD9B21500D9906175 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-OnTheMap/Pods-OnTheMap-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Bolts/Bolts.framework",
+				"${BUILT_PRODUCTS_DIR}/FBSDKCoreKit/FBSDKCoreKit.framework",
+				"${BUILT_PRODUCTS_DIR}/FBSDKLoginKit/FBSDKLoginKit.framework",
+				"${BUILT_PRODUCTS_DIR}/FBSDKShareKit/FBSDKShareKit.framework",
+				"${BUILT_PRODUCTS_DIR}/FacebookCore/FacebookCore.framework",
+				"${BUILT_PRODUCTS_DIR}/FacebookLogin/FacebookLogin.framework",
+				"${BUILT_PRODUCTS_DIR}/FacebookShare/FacebookShare.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Bolts.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKCoreKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKLoginKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FBSDKShareKit.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookLogin.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FacebookShare.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-OnTheMap/Pods-OnTheMap-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F533C907E2B59FBCAC9459EF /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-OnTheMap-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		1B82A7DA1F82FC3D00EDA4C0 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1B6A14CD1F8FE3B100153FFF /* OTMTableViewController.swift in Sources */,
 				1BB5927B1F83FC4C00582BC2 /* LoginViewController.swift in Sources */,
+				1BADAC891F902E3C0017FDA2 /* OTMMapViewController.swift in Sources */,
+				1BADAC871F8FEFB40017FDA2 /* OTMStudentLocation.swift in Sources */,
+				1B497E0B1F912A2000E67865 /* OTMDataStore.swift in Sources */,
+				1B15496E1F991D3B001280DC /* OTMAddLocationMapViewController.swift in Sources */,
 				1B82A7E21F82FC3D00EDA4C0 /* AppDelegate.swift in Sources */,
+				1B64E1D01F968A9A00BDD24C /* TestAnnotation.swift in Sources */,
+				1BBE930C1F952F0000048DC0 /* OTMTableViewCell.swift in Sources */,
 				1BC3814D1F854516005F78C3 /* OTMClient.swift in Sources */,
 				1BC3814B1F848169005F78C3 /* GradientView.swift in Sources */,
+				1B497E091F9121BF00E67865 /* UIViewControllerExtension.swift in Sources */,
+				1B64E20E1F97D81300BDD24C /* OTMAddLocationViewController.swift in Sources */,
 				1B82A7F41F82FC5100EDA4C0 /* Constants.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -316,6 +445,7 @@
 		};
 		1B82A7F11F82FC3D00EDA4C0 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = F7A7642474898974704F7228 /* Pods-OnTheMap.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -331,6 +461,7 @@
 		};
 		1B82A7F21F82FC3D00EDA4C0 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 37668851C46B959558F0F82F /* Pods-OnTheMap.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
