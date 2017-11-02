@@ -1,5 +1,5 @@
 import UIKit
-import FacebookCore
+
 
 class OTMTableViewController: UITableViewController {
     
@@ -12,14 +12,12 @@ class OTMTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.navigationBar.isHidden = false
-    
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        // TODO: who will call this first?
+        // Map view controller calls this first, but just in case call it here if needed.
         if dataStore.studentLocations.isEmpty {
             getLocationDataWithUIEffectAndSpinner()
         }
@@ -52,8 +50,12 @@ class OTMTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let studentLocation = dataStore.studentLocations[indexPath.row]
         
-        if let urlString = studentLocation.mediaURL, let url = URL(string:urlString) {
-
+        if var urlString = studentLocation.mediaURL, let url = URL(string:urlString) {
+            
+            if !urlString.starts(with: "http://") {
+                urlString = "http://" + urlString
+            }
+            
             UIApplication.shared.open(url, options: [:], completionHandler: { [unowned self] (success) in
                 
                 if success {
@@ -86,21 +88,21 @@ class OTMTableViewController: UITableViewController {
         OTMClient.shared.deleteUdacitySession { [unowned self] (success, errorString) in
             
             DispatchQueue.main.async {
+                
                 if let errorString = errorString {
                     self.presentAlertWith(title: errorString, message: "")
                 }
                 
-                if success {
-                    print("We've logged out. Time to go back to login view controller")
+                else if success {
                     
-                    self.logoutOfFacebook()
-                    
-                    // TODO: Delete session id from userDefaults
+                    OTMClient.shared.logoutOfFacebook()
+                    OTMClient.shared.removeSessionIDAndAccountKeyFromUserDefaults()
                     
                     self.navigationController?.tabBarController?.navigationController?.popToRootViewController(animated: true)
                 }
                 else {
-                    print("What happened here? We shouldn't be here. Never ever...")
+                    self.presentAlertWith(title: "Unknown error", message: "")
+                    print("Should never be here. In logoutButton method of table view controller")
                 }
             }
         }
@@ -113,7 +115,7 @@ class OTMTableViewController: UITableViewController {
     }
     
     
-    // MARK: Data from network method
+    // MARK: - Data from network method
     
     func getLocationDataWithUIEffectAndSpinner() {
         
@@ -133,13 +135,12 @@ class OTMTableViewController: UITableViewController {
                     self.presentAlertWith(title: errorString ?? "Error occured", message: "")
                 }
                 else {
+                    print("Just called for data. In table view controller with \(locations!.count) locations")
                     
                     self.undimScreenAndRemoveActivitySpinner()
                     self.activateUI()
                
                     // Handle new data
-                    print("Just called for data. In table view controller with \(locations!.count) locations")
-
                     self.dataStore.studentLocations = locations
                     self.tableView.reloadData()
                 }
@@ -147,7 +148,7 @@ class OTMTableViewController: UITableViewController {
         }
     }
     
-    // MARK: UI Methods
+    // MARK: - UI Methods
     
     func deactivateUIForRefresh() {
         logoutButton.isEnabled = false
@@ -166,16 +167,7 @@ class OTMTableViewController: UITableViewController {
         tabBarController?.tabBar.items?.first?.isEnabled = true
         tabBarController?.tabBar.items?.last?.isEnabled = true
     }
-    
-    // Logout Methods
-    func logoutOfFacebook() {
-        AccessToken.current = nil
-        UserProfile.current = nil
-    }
-    
-    func deleteSessionIDFromUserDefaults() {
-        
-    }
+
 }
 
 

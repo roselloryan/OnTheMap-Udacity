@@ -1,4 +1,5 @@
 import UIKit
+import FacebookCore
 
 // Parse Application ID: QrX47CA9cyuGewLdsL7o5Eb8iug6Em8ye0dnAbIr
 // REST API Key: QuWThTdiRmTux3YaDseUSEpUKo7aBYM737yKd4gY
@@ -9,16 +10,20 @@ class OTMClient: NSObject {
     
     var session = URLSession.shared
     var sessionID: String? = nil
-    var accountKey: Int? = nil
+    var accountKey: String? = nil
     
     
     func getSessionIDWith(email: String, password: String, completionHandler: @escaping(_ success: Bool, _ errorString: String?) -> Void) {
         
         let request = NSMutableURLRequest(url: URL(string: Constants.Url.UdacitySessionUrl)!)
+        
         request.httpMethod = Constants.HTTPMethod.Post
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = "{\"udacity\": {\"username\": \"\(email)\", \"password\": \"\(password)\"}}".data(using: String.Encoding.utf8)
+        request.addValue(Constants.HeaderValues.ApplicationJson, forHTTPHeaderField: Constants.HeaderKeys.Accept)
+        request.addValue(Constants.HeaderValues.ApplicationJson, forHTTPHeaderField: Constants.HeaderKeys.ContentType)
+        
+        let bodyString = Constants.HTTPBody.SessionIDBody.replacingOccurrences(of: Constants.HTTPBody.EmailToken, with: email).replacingOccurrences(of: Constants.HTTPBody.PasswordToken, with: password)
+        request.httpBody = bodyString.data(using: .utf8)
+
         let session = URLSession.shared
         let task = session.dataTask(with: request as URLRequest) { [unowned self] data, response, error in
             
@@ -61,23 +66,23 @@ class OTMClient: NSObject {
                 }
                 
                 // Handle parsed response
-                if let sessionID = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as! NSDictionary)[Constants.DictionaryKey.ID] as? String {
-                    self.sessionID = sessionID
-                    UserDefaults.standard.set(sessionID, forKey: Constants.UserDefaultsKey.SessionID)
-                }
-                else {
+                guard let sessionID = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as! NSDictionary)[Constants.DictionaryKey.ID] as? String  else {
                     //TODO: Handle issue
                     // What does a bad response look like?
+                    completionHandler(false, "Did not recive session id in getSessionIdWith(email:password:)")
+                    return
                 }
                 
-                if let accountKey = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as! NSDictionary)[Constants.DictionaryKey.Key] as? Int {
-                    self.accountKey = accountKey
-                    UserDefaults.standard.set(accountKey, forKey: Constants.UserDefaultsKey.AccountKey)
-                }
-                else {
+                guard let accountKey = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as! NSDictionary)[Constants.DictionaryKey.Key] as? String else {
                     //TODO: Handle issue
                     // What does a bad response look like?
+                    completionHandler(false, "Did not recive Account key in getSessionIdWith(email:password:)")
+                    return
                 }
+                
+                self.sessionID = sessionID
+                self.accountKey = accountKey
+                self.addSessionIDAndAccountKeyToUserDefaults(sessionID: sessionID, acountKey: accountKey)
                 
                 completionHandler(true, nil)
             })
@@ -119,21 +124,25 @@ class OTMClient: NSObject {
                 }
                 
                 // Handle parsed response
-                if let sessionID = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as! NSDictionary)[Constants.DictionaryKey.ID] as? String {
-                    self.sessionID = sessionID
-                }
-                else {
+                guard let sessionID = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as! NSDictionary)[Constants.DictionaryKey.ID] as? String else {
+                    
                     //TODO: Handle issue
                     // What does a bad response look like?
+                    completionHandler(false, "No session id in getSessionIDWithFacebookAccessToken()")
+                    return
                 }
                 
-                if let accountKey = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as! NSDictionary)[Constants.DictionaryKey.Key] as? Int {
-                    self.accountKey = accountKey
-                }
-                else {
+                guard let accountKey = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as! NSDictionary)[Constants.DictionaryKey.Key] as? String else {
+                    
                     //TODO: Handle issue
                     // What does a bad response look like?
+                    completionHandler(false, "No account key in getSessionIDWithFacebookAccessToken()")
+                    return
                 }
+                
+                self.sessionID = sessionID
+                self.accountKey = accountKey
+                self.addSessionIDAndAccountKeyToUserDefaults(sessionID: sessionID, acountKey: accountKey)
                 
                 completionHandler(true, nil)
             })
@@ -187,6 +196,72 @@ class OTMClient: NSObject {
                 let locationsArray = self.convertDictionaryToStudentLocationObjectsInSharedData(locationsDict)
                 
                 locationsCompletionHandler(true, locationsArray, nil)
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func getSingleStudentLocation(locationsCompletionHandler: @escaping (_ success: Bool, _ results: OTMStudentInformation?, _ errorString: String? ) -> Void) {
+        
+        guard let accountKey = UserDefaults.standard.object(forKey: Constants.UserDefaultsKey.AccountKey) as? String else {
+            print("No accountKey in userDefaults OTMClient getSingleStudentLocation")
+            return
+        }
+        
+        // TODO: This is dangerous make it a constant
+        let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + accountKey + "%22%7D"
+        
+//        let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + "10529458535" + "%22%7D"
+        
+        let request = NSMutableURLRequest(url: URL(string: urlString)!)
+        request.addValue(Constants.HeaderValues.AppID, forHTTPHeaderField: Constants.HeaderKeys.AppID)
+        request.addValue(Constants.HeaderValues.APIKey, forHTTPHeaderField: Constants.HeaderKeys.APIKey)
+        let session = URLSession.shared
+        let task = session.dataTask(with: request as URLRequest) { data, response, error in
+            
+            // Check error
+            if let error = error {
+                locationsCompletionHandler(false, nil, error.localizedDescription)
+                return
+            }
+            
+            // Check status code
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200, statusCode <= 299 else {
+                print("Unsuccesful resopnse code in getSingleStudentLocation\n\(String(describing:response!))")
+                locationsCompletionHandler(false, nil, "Unsuccesful resopnse status code in getSingleStudentLocation")
+                return
+            }
+            
+            // Check Data
+            guard let data = data else {
+                locationsCompletionHandler(false, nil, "No data returned in getSingleStudentLocation")
+                return
+            }
+            
+            // Parse results
+            var parsedResult: AnyObject! = nil
+            do {
+                parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+            }
+            catch {
+                print("Could not parse data in getSingleStudentLocation")
+                locationsCompletionHandler(false, nil, "Could not parse data in getSingleStudentLocation")
+                return
+            }
+            
+            // Use results
+            if let locationsDict = (parsedResult as! NSDictionary)["results"] as? NSArray {
+                
+                let locationsArray = self.convertDictionaryToStudentLocationObjectsInSharedData(locationsDict)
+                
+                if let location = locationsArray.first {
+                    locationsCompletionHandler(true, location, nil)
+                }
+                else {
+                    // This means no location already in API for userID
+                    locationsCompletionHandler(true, nil, "emtpy locations array in getSingleStudentLocation")
+                }
             }
         }
         
@@ -253,9 +328,154 @@ class OTMClient: NSObject {
         
     }
     
-    func logoutFacebookSession() {
+    func postNewStudentLocation(_ studentLocation: OTMStudentInformation,  postNewCompletionHandler: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
+        
+        OTMClient.shared.getUserInfo { (userInfoDict, errorString) in
+            
+            if let errorString = errorString {
+                postNewCompletionHandler(false, errorString)
+                return
+            }
+            
+            print(Constants.Url.ApiHost + Constants.Url.ApiPath + Constants.Url.StudentLocationsPath)
+            
+            guard let userInfoDict = userInfoDict else {
+                postNewCompletionHandler(false, "Error in postNewStudentLocation")
+                return
+            }
+            
+            guard let firstName = userInfoDict["first_name"] as? String,
+                let lastName = userInfoDict["last_name"]  as? String,
+                let key = userInfoDict["key"] as? String else {
+                    
+                    postNewCompletionHandler(false, "Error in userInfoDict in postNewStudentLocation")
+                    return
+            }
+            
+            guard let url = URL(string: Constants.Url.ApiHost + Constants.Url.ApiPath + Constants.Url.StudentLocationsPath) else {
+                postNewCompletionHandler(false, "Sorry, url failed...")
+                return
+            }
+            
+            var request = URLRequest(url: url)
+            request.httpMethod = Constants.HTTPMethod.Post
+            request.addValue( Constants.HeaderValues.AppID, forHTTPHeaderField: Constants.HeaderKeys.AppID)
+            request.addValue(Constants.HeaderValues.APIKey, forHTTPHeaderField: Constants.HeaderKeys.APIKey)
+            request.addValue(Constants.HeaderValues.ApplicationJson, forHTTPHeaderField: Constants.HeaderKeys.ContentType)
+            
+            var httpBodyString = Constants.HTTPBody.PostLocationBody
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.UniqueKeyToken, with: key)
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.FirstNameToken, with: firstName)
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.LastNameToken, with: lastName)
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.MapStringToken, with: studentLocation.mapString ?? "")
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.MediaURLToken, with: studentLocation.mediaURL ?? "")
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.LatitudeToken, with: String(studentLocation.coordinate.latitude))
+            httpBodyString = httpBodyString.replacingOccurrences(of: Constants.HTTPBody.LongitudeToken, with: String(studentLocation.coordinate.longitude))
+            
+            print("httpBodyString: \(httpBodyString)")
+            
+            request.httpBody = httpBodyString.data(using: .utf8)
+            
+            let session = URLSession.shared
+            let task = session.dataTask(with: request) { data, response, error in
+                
+                if let error = error {
+                    postNewCompletionHandler(false, error.localizedDescription)
+                    return
+                }
+                
+                // Check status code
+                guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200, statusCode <= 299 else {
+                    print("Unsuccesful resopnse code in postNewStudentLocation\n\(String(describing:response!))")
+                    postNewCompletionHandler(false, "Unsuccessful status code in postNewStudentLocation")
+                    return
+                }
+                
+                // Check Data
+                guard let data = data else {
+                    postNewCompletionHandler(false, "No data returned in postNewStudentLocation")
+                    return
+                }
+                
+                // Parse data
+                self.convertDataWithCompletionHandler(data, completionHandlerForConvertData: { (result, error) in
+                    
+                    if let error = error {
+                        postNewCompletionHandler(false, error.localizedDescription)
+                        return
+                    }
+                    // Handle success
+                    if let result = result {
+                        print("Result from post new student location:")
+                        print(result)
+                        postNewCompletionHandler(true, nil)
+                    }
+                })
+            }
+            task.resume()
+        }
         
     }
+    
+    func getUserInfo(userInfoCompletionHandler: @escaping(_ userInfoDict: Dictionary<String, Any>?, _ errorString: String?) -> Void) {
+        
+        guard let accountKey = UserDefaults.standard.object(forKey: Constants.UserDefaultsKey.AccountKey) as? String else {
+            print("Account key not set in Client getUserInfo method")
+            userInfoCompletionHandler(nil, "Something went wrong. Please logout and back in again")
+            return
+        }
+        guard let url = URL(string: Constants.Url.UdacityUserHostAndPath + accountKey) else {
+            print("URL init failed in getUserInfo()")
+            userInfoCompletionHandler(nil, "Something went wrong. Please try again.")
+            return
+        }
+        
+        let request = URLRequest.init(url: url)
+        let session = URLSession.shared
+        let dataTask = session.dataTask(with: request) { (data, response, error) in
+            
+            if let error = error {
+                userInfoCompletionHandler(nil, error.localizedDescription)
+                return
+            }
+            
+            // Check status code
+            guard let statusCode = (response as? HTTPURLResponse)?.statusCode, statusCode >= 200, statusCode <= 299 else {
+                print("Unsuccesful resopnse code in getUserInfo\n\(String(describing:response!))")
+                userInfoCompletionHandler(nil, "Unsuccessful status code in getUserInfo()")
+                return
+            }
+            
+            // Check Data
+            guard let data = data else {
+                userInfoCompletionHandler(nil, "No data returned in getUserInfo")
+                return
+            }
+            
+            // Parse data
+            self.convertDataWithCompletionHandler(data, completionHandlerForConvertData: { (result, error) in
+                
+                if let error = error {
+                    userInfoCompletionHandler(nil, error.localizedDescription)
+                    return
+                }
+                // Handle success
+                if let resultDict = result as? Dictionary<String, Any>, let userInfoDict = resultDict["user"] as? Dictionary<String, Any> {
+                    print("Result from getUserInfo:")
+                    print(userInfoDict)
+                    userInfoCompletionHandler(userInfoDict, nil)
+                }
+                else {
+                    print("Didn't get a dictionary back in getUserInfo")
+                    userInfoCompletionHandler(nil, "Not a dictionary in getUserInfo")
+                }
+            })
+            
+        }
+        dataTask.resume()
+        
+    }
+    
     
     // MARK: JSON Parsing Method
     // given raw JSON, return a usable Foundation object
@@ -284,12 +504,13 @@ class OTMClient: NSObject {
         for location in locationsArray {
             
             let location = location as! NSDictionary
-//            print(location)
+            print(location)
             
             if let latitude = location[Constants.StudentInformationKey.Latitude] as? Double,
                 let longitude = location[Constants.StudentInformationKey.Longitude] as? Double,
                 let firstName = location[Constants.StudentInformationKey.FirstName] as? String,
-                let lastName = location[Constants.StudentInformationKey.LastName] as? String {
+                let lastName = location[Constants.StudentInformationKey.LastName] as? String,
+            let uniqueKey = location[Constants.StudentInformationKey.UniqueKey] as? String {
                 
                 let newLocation = OTMStudentInformation(createdAt: location[Constants.StudentInformationKey.CreatedAt] as! String,
                                                      updatedAt: location[Constants.StudentInformationKey.UpdatedAt]  as! String,
@@ -300,7 +521,7 @@ class OTMClient: NSObject {
                                                      longitude: longitude,
                                                      mapString: location[Constants.StudentInformationKey.MapString] as? String,
                                                      mediaURL: location[Constants.StudentInformationKey.MediaURL] as? String,
-                                                     uniqueKey: location[Constants.StudentInformationKey.UniqueKey] as? String)
+                                                     uniqueKey: uniqueKey)
                 
                 tempArray.append(newLocation)
             }
@@ -308,6 +529,23 @@ class OTMClient: NSObject {
         
         print(tempArray.count)
         return tempArray
+    }
+    
+    // Logout Facebook
+    func logoutOfFacebook() {
+        AccessToken.current = nil
+        UserProfile.current = nil
+    }
+    
+    func addSessionIDAndAccountKeyToUserDefaults(sessionID: String, acountKey: String) {
+        UserDefaults.standard.set(sessionID, forKey: Constants.UserDefaultsKey.SessionID)
+        UserDefaults.standard.set(accountKey, forKey: Constants.UserDefaultsKey.AccountKey)
+    }
+    
+    // Delete session id from user defaults
+    func removeSessionIDAndAccountKeyFromUserDefaults() {
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaultsKey.SessionID)
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaultsKey.AccountKey)
     }
 }
 

@@ -13,38 +13,95 @@ class OTMAddLocationMapViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        
         mapView.delegate = self
 
         // Set visible region
         mapView.region = localSearchResponse.boundingRegion
         
-        // Create annotation from MKMapItem/s from localSearchResponse
-        let location = OTMStudentInformation.init(createdAt: "",
-                                                  updatedAt: "",
-                                                  objectID: "",
-                                                  firstName: localSearchResponse.mapItems.first!.placemark.title!,
-                                                  lastName: "",
-                                                  latitude: localSearchResponse.mapItems.first!.placemark.coordinate.latitude,
-                                                  longitude: localSearchResponse.mapItems.first!.placemark.coordinate.longitude,
-                                                  mapString: "",
-                                                  mediaURL: mediaURLString ?? "",
-                                                  uniqueKey: "")
-        mapView.addAnnotation(location)
+        
+        // TODO: Handle more than one mapItem possibity
+        let locations = localSearchResponse.mapItems.map { (mapItem: MKMapItem) -> OTMStudentInformation in
+            let newDict: Dictionary<String, Any> = [Constants.StudentInformationKey.CreatedAt : "",
+                           Constants.StudentInformationKey.UpdatedAt : "",
+                           Constants.StudentInformationKey.ObjectID : "",
+                           Constants.StudentInformationKey.FirstName : mapItem.placemark.name ?? "",
+                           Constants.StudentInformationKey.LastName : "",
+                           Constants.StudentInformationKey.Latitude : mapItem.placemark.coordinate.latitude,
+                           Constants.StudentInformationKey.Longitude : mapItem.placemark.coordinate.longitude,
+                           Constants.StudentInformationKey.MapString : mapItem.placemark.name ?? "",
+                           Constants.StudentInformationKey.MediaURL : mediaURLString ?? "",
+                           Constants.StudentInformationKey.UniqueKey : ""]
+            
+            return OTMStudentInformation.init(withDictionary: newDict)
+        }
+        
+        print(locations)
+        mapView.addAnnotations(locations)
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let annotation = mapView.annotations.first {
-            mapView.selectAnnotation(annotation, animated: true)
-        }
+//        if let annotation = mapView.annotations.first {
+//            mapView.selectAnnotation(annotation, animated: true)
+//        }
     }
     
+    
+    // MARK: - Button methods
     @IBAction func setLocationTapped(_ sender: UIButton) {
         print("Set location tapped")
-        // TODO: This should call the post locaiton method
+        
+        // TODO: This should call the PUT or POST locaiton methods
+        
+        guard let selectedPin = mapView.selectedAnnotations.first as? OTMStudentInformation else {
+            print("No pin selected")
+            presentAlertWith(title: "Please select a location pin", message: "")
+            return
+        }
+        
+        // TODO: Set mapString and url before passing StudentInformation to post method
+        
+        // 0. Find out if user already has location.
+        OTMClient.shared.getSingleStudentLocation { [unowned self] (success, existingLocation, errorString) in
+            
+            if success {
+                
+                if existingLocation == nil {
+                    print("We need to POST new location now!")
+                    
+                    // Call to POST new student location
+                    OTMClient.shared.postNewStudentLocation(selectedPin, postNewCompletionHandler: { (succcess, errorString) in
+                        if success {
+                            // TODO: Present success alert
+                        }
+                        else {
+                            self.presentAlertWith(title: errorString ?? "Unknown error", message: "")
+                        }
+                    })
+                }
+                else {
+                    // Update PUT existing student location
+                    guard let existingLocation = existingLocation else {
+                        print("No location returned from getSingleStudentLocation in add location map view controller")
+                        return
+                    }
+                    print(existingLocation.firstName +  existingLocation.lastName)
+                }
+                
+                // 2. Call post method on chare OTMClient
+                
+                // 3. Handle success or failures
+                
+                // 4. navigate back to map view in tabBarController
+            }
+            else if let errorString = errorString {
+                // TODO: Flow options?
+                self.presentAlertWith(title: errorString, message: "")
+                print("No success in set location add location map controller")
+            }
+        }
     }
     
 }
@@ -52,7 +109,13 @@ class OTMAddLocationMapViewController: UIViewController {
 extension OTMAddLocationMapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        print("An annotation was selected.")
+        
+        (view as! MKPinAnnotationView).pinTintColor = Constants.CustomColor.UdacityBlue
+    }
+    
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        
+        (view as! MKPinAnnotationView).pinTintColor = Constants.CustomColor.UdacityOrange
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -67,6 +130,7 @@ extension OTMAddLocationMapViewController: MKMapViewDelegate {
         }
         else {
             view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: Constants.Identifier.AnnotationView)
+            view.pinTintColor = Constants.CustomColor.UdacityOrange
             view.canShowCallout = true
         }
         

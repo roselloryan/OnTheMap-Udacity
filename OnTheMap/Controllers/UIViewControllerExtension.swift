@@ -15,7 +15,7 @@ extension UIViewController {
     func dimScreenWithActivitySpinner() {
         
         // Add dimmed view
-        let dimmedView = UIView(frame: view.window!.frame)
+        let dimmedView = UIView(frame: view.window?.frame ?? view.frame) // TODO: Crashing with nil window?
         dimmedView.tag = 1
         dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
         view.window?.addSubview(dimmedView)

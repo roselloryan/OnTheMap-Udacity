@@ -14,30 +14,31 @@ class OTMMapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        navigationController?.navigationBar.isHidden = false
     
+        // Set delegates
         mapView.delegate = self
-        
-        // TODO: Put this in the view controller that is first selected upon launch
         tabBarController?.delegate = self
         
         
-        
+        // TODO: Add indicator for call
         OTMClient.shared.getStudentLocationsInDateOrder { [unowned self] (success, arrayOfLocations, errorString) in
             
             // Check error
-            if let error = errorString {
-                self.presentAlertWith(title: error, message: "")
-            }
-                
-            else if success {
-                if let studentLocations = arrayOfLocations {
-                    self.dataStore.studentLocations = studentLocations
+            DispatchQueue.main.async {
+                if let error = errorString {
+                    self.presentAlertWith(title: error, message: "")
+                }
+                else if success {
                     
-                    DispatchQueue.main.async {
+                    if let studentLocations = arrayOfLocations {
+                    
+                        self.dataStore.studentLocations = studentLocations
                         self.reloadMapAnnotationsFromDataStore()
                     }
+                }
+                else {
+                    self.presentAlertWith(title: "Unknown error", message: "")
+                    print("Should never be here. Error in viewDidLoad()")
                 }
             }
         }
@@ -45,7 +46,7 @@ class OTMMapViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print("In map view controller with \(dataStore.studentLocations.count) student locations")
+//        print("In map view controller with \(dataStore.studentLocations.count) student locations")
     }
 
     
@@ -54,18 +55,22 @@ class OTMMapViewController: UIViewController {
     
         OTMClient.shared.deleteUdacitySession { [unowned self] (success, errorString) in
             
-            if let errorString = errorString {
-                self.presentAlertWith(title: errorString, message: "")
-            }
-            else if success {
-                // TODO: Delete session id from userDefaults
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                
+                if let errorString = errorString {
+                    self.presentAlertWith(title: errorString, message: "")
+                }
+                else if success {
+                    
+                    OTMClient.shared.logoutOfFacebook()
+                    OTMClient.shared.removeSessionIDAndAccountKeyFromUserDefaults()
+                    
                     self.navigationController?.tabBarController?.navigationController?.popToRootViewController(animated: true)
                 }
-            }
-            else {
-                self.presentAlertWith(title: "Unknown error", message: "")
-                print("Should never be here. Figure out what went wrong")
+                else {
+                    self.presentAlertWith(title: "Unknown error", message: "")
+                    print("Should never be here. Figure out what went wrong")
+                }
             }
         }
     }
@@ -100,49 +105,25 @@ class OTMMapViewController: UIViewController {
         
         deactivateUIForRefresh()
         
-        // Add dimmed view
-        let dimmedView = UIView(frame: view.window!.frame)
-        dimmedView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        view.window?.addSubview(dimmedView)
-        
-        // Add activity indicator
-        let spinnerView = UIActivityIndicatorView.init(activityIndicatorStyle: UIActivityIndicatorViewStyle.whiteLarge)
-        spinnerView.center = CGPoint(x: view.center.x, y: view.center.y - navigationController!.navigationBar.frame.height)
-        view.window?.addSubview(spinnerView)
-        spinnerView.startAnimating()
-        
+        dimScreenWithActivitySpinner()
         
         OTMClient.shared.getStudentLocationsInDateOrder { [unowned self] (success, locations, errorString) in
             
-            if !success {
-                
-                DispatchQueue.main.async {
-                    // Remove activity indicator
-                    spinnerView.stopAnimating()
-                    spinnerView.removeFromSuperview()
+            DispatchQueue.main.async {
+                if !success {
                     
-                    // Remove dimmed view
-                    dimmedView.removeFromSuperview()
-                    
+                    self.undimScreenAndRemoveActivitySpinner()
                     self.activateUI()
         
                     self.presentAlertWith(title: errorString ?? "Error occured", message: "")
                 }
-            }
-            else {
-                DispatchQueue.main.async {
+                else {
+                    print("Called for data in MAP view controller with \(locations!.count) locations")
                     
-                    // Remove activity indicator
-                    spinnerView.stopAnimating()
-                    spinnerView.removeFromSuperview()
-                    
-                    // Remove dimmed view
-                    dimmedView.removeFromSuperview()
-                    
+                    self.undimScreenAndRemoveActivitySpinner()
                     self.activateUI()
                     
                     // Handle new data
-                    print("In MAP view controller with \(locations!.count) locations")
                     self.dataStore.studentLocations = locations
                     self.reloadMapAnnotationsFromDataStore()
                 }
@@ -158,20 +139,38 @@ class OTMMapViewController: UIViewController {
 }
 
 
+// MARK: - Map delegate methods
 extension OTMMapViewController: MKMapViewDelegate {
     
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        print("MKAnnotationView selected")
+
+        (view as! MKPinAnnotationView).pinTintColor = Constants.CustomColor.UdacityBlue
+    }
+    func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView) {
+        
+        (view as! MKPinAnnotationView).pinTintColor = Constants.CustomColor.UdacityOrange
     }
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         print("callout tapped")
         
         if let annotation = view.annotation {
-            if let urlString = annotation.subtitle ?? nil { //Double unwrap subtitle String??
+            
+            if var urlString = annotation.subtitle ?? nil { //Double unwrap subtitle String??
+                
+                if !urlString.starts(with: "http://") {
+                    urlString = "http://" + urlString
+                }
+                
                 if let url = URL(string: urlString) {
-                    print("We have a url... omg")
+    
                     UIApplication.shared.open(url, options: [:])
+                }
+                else {
+                
+                    DispatchQueue.main.async { [unowned self] in
+                        self.presentAlertWith(title: "Invalid link", message: "")
+                    }
                 }
             }
         }
@@ -192,53 +191,53 @@ extension OTMMapViewController: MKMapViewDelegate {
             view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: Constants.Identifier.AnnotationView)
             view.canShowCallout = true
             
-            let button = UIButton(type: .detailDisclosure)
-            button.frame = CGRect.zero
-            view.rightCalloutAccessoryView = button
+            view.pinTintColor = Constants.CustomColor.UdacityOrange
             
-            let spacerView = UIView()
-            spacerView.frame = CGRect.zero
-            view.leftCalloutAccessoryView = spacerView
+            let button = UIButton.init(type: .custom)
+            if let arrowImage = UIImage.init(named: "icon_forward-arrow") {
+                button.setBackgroundImage(arrowImage, for: .normal)
+            }
+            button.frame = CGRect(x: 0, y: 0, width: view.frame.height, height:view.frame.height)
+            view.rightCalloutAccessoryView = button
         }
         
         return view
     }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("does this get called when selecting tab view controllers?")
-        
-    }
 }
 
 
+// MARK: - Tab bar controller delegate
 extension OTMMapViewController: UITabBarControllerDelegate {
     
     // TODO: Do I even need this?
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         
-        // From view controller
-        guard let selectedVC = (tabBarController.selectedViewController as! UINavigationController).viewControllers.first else {
-            print("In table view delegate: Not passing FROM a view controller.")
+        // If same tab selected nothing to do.
+        if viewController == tabBarController.selectedViewController {
             return true
         }
-        print(selectedVC.self)
+        
+        // From view controller
+        guard let selectedVC = (tabBarController.selectedViewController as! UINavigationController).viewControllers.first else {
+            print("In tabBarController delegate: No passing FROM view controller.")
+            return true
+        }
         
         // To view controller
         guard let destinationVC = (viewController as! UINavigationController).viewControllers.first else {
-            print("In table view delegate: Not a view controller to pass the data store to.")
+            print("In tabBarController delegate: No passing TO view controller.")
             return true
         }
-        print(destinationVC.self)
         
         
         if destinationVC.isKind(of: OTMMapViewController.self) {
+            
             // Pass the Data store to map view controller
-            print("Pass the Data store to map view controller")
             (destinationVC as! OTMMapViewController).dataStore = (selectedVC as! OTMTableViewController).dataStore
         }
         else {
+            
             // Pass the data store to the table view controller
-            print("Pass the Data store to table view controller")
             (destinationVC as! OTMTableViewController).dataStore = (selectedVC as! OTMMapViewController).dataStore
         }
         return true

@@ -18,15 +18,16 @@ class OTMStudentInformation: NSObject, MKAnnotation {
     let createdAt: String
     let updatedAt: String
     let objectID: String
+    let uniqueKey: String
     
     let firstName: String
     let lastName: String
     
     let mapString: String?
     let mediaURL: String?
-    let uniqueKey: String?
     
-    init(createdAt: String, updatedAt: String, objectID: String, firstName: String, lastName: String, latitude: Double, longitude: Double, mapString: String?, mediaURL: String?, uniqueKey: String?) {
+    
+    init(createdAt: String, updatedAt: String, objectID: String, firstName: String, lastName: String, latitude: Double, longitude: Double, mapString: String?, mediaURL: String?, uniqueKey: String) {
         
         self.createdAt = createdAt
         self.updatedAt = updatedAt
@@ -45,5 +46,18 @@ class OTMStudentInformation: NSObject, MKAnnotation {
         self.subtitle = self.mediaURL
         
         super.init()
+    }
+    
+    convenience init(withDictionary dict: Dictionary<String,Any>) {
+        self.init(createdAt: dict[Constants.StudentInformationKey.CreatedAt] as! String,
+                  updatedAt: dict[Constants.StudentInformationKey.UpdatedAt] as! String,
+                  objectID: dict[Constants.StudentInformationKey.ObjectID] as! String,
+                  firstName: dict[Constants.StudentInformationKey.FirstName] as! String,
+                  lastName: dict[Constants.StudentInformationKey.LastName] as! String,
+                  latitude: dict[Constants.StudentInformationKey.Latitude] as! Double,
+                  longitude: dict[Constants.StudentInformationKey.Longitude] as! Double,
+                  mapString: dict[Constants.StudentInformationKey.MapString] as? String,
+                  mediaURL: dict[Constants.StudentInformationKey.MediaURL] as? String,
+                  uniqueKey: dict[Constants.StudentInformationKey.UniqueKey] as! String)
     }
 }

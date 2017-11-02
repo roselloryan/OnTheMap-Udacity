@@ -69,6 +69,8 @@ class LoginViewController: UIViewController {
                 
                 DispatchQueue.main.async {
                     self.performSegue(withIdentifier: Constants.Identifier.MainSegue, sender: self)
+                    self.clearBothTextFields()
+                    self.resignAnyFirstResponder()
                 }
             }
             else {
@@ -143,6 +145,7 @@ class LoginViewController: UIViewController {
 }
 
 
+// MARK: Text Field Delegate and methods
 extension LoginViewController: UITextFieldDelegate {
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -160,6 +163,12 @@ extension LoginViewController: UITextFieldDelegate {
         
         textField.resignFirstResponder()
         return true
+    }
+    
+    func clearBothTextFields() {
+        // TODO: Reset with placeholders didEndEditing not called for both text fields
+        emailTextField.text = String()
+        passwordTextField.text = String()
     }
 }
 
@@ -182,6 +191,8 @@ extension LoginViewController: LoginButtonDelegate {
                     
                     if success {
                         self.performSegue(withIdentifier: Constants.Identifier.MainSegue, sender: self)
+                        self.clearBothTextFields()
+                        self.resignAnyFirstResponder()
                     }
                     else if let error = errorString {
                         self.presentAlertWith(title: error, message: "")
