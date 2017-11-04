@@ -33,11 +33,27 @@ class LoginViewController: UIViewController {
         
         navigationController?.navigationBar.isHidden = true
         
+        // TODO: fix login button alignment on right
         
         // TODO: check if session is expired. :(
+        // TODO: Add screen dimming and ui adjustments
         if UserDefaults.standard.string(forKey: Constants.UserDefaultsKey.SessionID) != nil {
-
-            performSegue(withIdentifier: Constants.Identifier.MainSegue, sender: self)   
+            if let dateString = UserDefaults.standard.string(forKey: Constants.UserDefaultsKey.SessionExpirationDate) {
+                
+                let dateFormatter = DateFormatter()
+                
+                print(dateString)
+                print(Date())
+                
+                if let  expirationDate = dateFormatter.date(from: dateString) {
+                
+                    if expirationDate < Date() {
+                        print(expirationDate)
+                        print(Date())
+                        performSegue(withIdentifier: Constants.Identifier.MainSegue, sender: self)
+                    }
+                }
+            }
         }
         else {
             checkForFacebookAccessTokenAndLoginIfFound()

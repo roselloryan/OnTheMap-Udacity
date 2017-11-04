@@ -19,34 +19,18 @@ class OTMMapViewController: UIViewController {
         mapView.delegate = self
         tabBarController?.delegate = self
         
-        
-        // TODO: Add indicator for call
-        OTMClient.shared.getStudentLocationsInDateOrder { [unowned self] (success, arrayOfLocations, errorString) in
-            
-            // Check error
-            DispatchQueue.main.async {
-                if let error = errorString {
-                    self.presentAlertWith(title: error, message: "")
-                }
-                else if success {
-                    
-                    if let studentLocations = arrayOfLocations {
-                    
-                        self.dataStore.studentLocations = studentLocations
-                        self.reloadMapAnnotationsFromDataStore()
-                    }
-                }
-                else {
-                    self.presentAlertWith(title: "Unknown error", message: "")
-                    print("Should never be here. Error in viewDidLoad()")
-                }
-            }
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-//        print("In map view controller with \(dataStore.studentLocations.count) student locations")
+
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if dataStore.shouldCallForUdates {
+            getLocationDataWithUIEffectAndSpinner()
+        }
     }
 
     
@@ -63,7 +47,7 @@ class OTMMapViewController: UIViewController {
                 else if success {
                     
                     OTMClient.shared.logoutOfFacebook()
-                    OTMClient.shared.removeSessionIDAndAccountKeyFromUserDefaults()
+                    OTMClient.shared.removeSessionIDExpirationDateAndAccountKeyFromUserDefaults()
                     
                     self.navigationController?.tabBarController?.navigationController?.popToRootViewController(animated: true)
                 }
@@ -100,6 +84,7 @@ class OTMMapViewController: UIViewController {
         tabBarController?.tabBar.items?.last?.isEnabled = true
     }
     
+    
     // MARK: - Network data method
     func getLocationDataWithUIEffectAndSpinner() {
         
@@ -124,6 +109,7 @@ class OTMMapViewController: UIViewController {
                     self.activateUI()
                     
                     // Handle new data
+                    self.dataStore.shouldCallForUdates = false
                     self.dataStore.studentLocations = locations
                     self.reloadMapAnnotationsFromDataStore()
                 }
@@ -157,14 +143,17 @@ extension OTMMapViewController: MKMapViewDelegate {
         if let annotation = view.annotation {
             
             if var urlString = annotation.subtitle ?? nil { //Double unwrap subtitle String??
+
+                if !urlString.isEmpty {
+                    
+                    if !urlString.starts(with: "https://") && !urlString.starts(with: "http://"){
+                        urlString = "https://" + urlString
+                    }
                 
-                if !urlString.starts(with: "http://") {
-                    urlString = "http://" + urlString
-                }
-                
-                if let url = URL(string: urlString) {
-    
-                    UIApplication.shared.open(url, options: [:])
+                    if let url = URL(string: urlString), UIApplication.shared.canOpenURL(url) {
+                    
+                        UIApplication.shared.open(url, options: [:])
+                    }
                 }
                 else {
                 
@@ -193,12 +182,14 @@ extension OTMMapViewController: MKMapViewDelegate {
             
             view.pinTintColor = Constants.CustomColor.UdacityOrange
             
-            let button = UIButton.init(type: .custom)
-            if let arrowImage = UIImage.init(named: "icon_forward-arrow") {
-                button.setBackgroundImage(arrowImage, for: .normal)
-            }
-            button.frame = CGRect(x: 0, y: 0, width: view.frame.height, height:view.frame.height)
-            view.rightCalloutAccessoryView = button
+            let disclosureButton = UIButton(type: .detailDisclosure)
+            disclosureButton.tintColor = .clear
+            view.rightCalloutAccessoryView = disclosureButton
+            
+            
+            let imageView = UIImageView(frame: disclosureButton.bounds)
+            imageView.image = UIImage.init(named: "icon_forward-arrow")
+            disclosureButton.addSubview(imageView)
         }
         
         return view

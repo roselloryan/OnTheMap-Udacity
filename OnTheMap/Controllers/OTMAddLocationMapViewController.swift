@@ -42,18 +42,15 @@ class OTMAddLocationMapViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-//        if let annotation = mapView.annotations.first {
-//            mapView.selectAnnotation(annotation, animated: true)
-//        }
+
     }
     
+    
+    // TODO: OMG This is big. Clean it up.
     
     // MARK: - Button methods
     @IBAction func setLocationTapped(_ sender: UIButton) {
         print("Set location tapped")
-        
-        // TODO: This should call the PUT or POST locaiton methods
         
         guard let selectedPin = mapView.selectedAnnotations.first as? OTMStudentInformation else {
             print("No pin selected")
@@ -61,9 +58,9 @@ class OTMAddLocationMapViewController: UIViewController {
             return
         }
         
-        // TODO: Set mapString and url before passing StudentInformation to post method
+        dimScreenWithActivitySpinner()
         
-        // 0. Find out if user already has location.
+        // Find out if user already has location.
         OTMClient.shared.getSingleStudentLocation { [unowned self] (success, existingLocation, errorString) in
             
             if success {
@@ -72,39 +69,101 @@ class OTMAddLocationMapViewController: UIViewController {
                     print("We need to POST new location now!")
                     
                     // Call to POST new student location
-                    OTMClient.shared.postNewStudentLocation(selectedPin, postNewCompletionHandler: { (succcess, errorString) in
-                        if success {
-                            // TODO: Present success alert
-                        }
-                        else {
-                            self.presentAlertWith(title: errorString ?? "Unknown error", message: "")
+                    OTMClient.shared.sendNewStudentLocationToAPI(withMethod: Constants.HTTPMethod.Post, studentLocation: selectedPin, postNewCompletionHandler: { (succcess, errorString) in
+                        
+                        DispatchQueue.main.async {
+                            self.undimScreenAndRemoveActivitySpinner()
+                            
+                            if success {
+                                
+                                NotificationCenter.default.post(Constants.CustomNotification.UpdateNotification)
+                                
+                                // Successfully posted new location
+                                let successAlert = UIAlertController(title: "Success!", message: "You are on the map", preferredStyle: .alert)
+                                
+                                self.present(successAlert, animated: true, completion: {
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: {
+                                        
+                                        successAlert.dismiss(animated: true)
+                                        
+                                        self.presentingViewController?.dismiss(animated: true, completion: {
+                                        })
+                                    })
+                                })
+                            }
+                            else {
+                                // POST new location failed
+                                self.presentAlertWith(title: errorString ?? "Unknown error", message: "")
+                            }
                         }
                     })
                 }
+                // Student already on map and need to PUT to update location
                 else {
-                    // Update PUT existing student location
+                    
                     guard let existingLocation = existingLocation else {
                         print("No location returned from getSingleStudentLocation in add location map view controller")
                         return
                     }
-                    print(existingLocation.firstName +  existingLocation.lastName)
+                    
+                    // Need the object ID to update location
+                    selectedPin.objectID = existingLocation.objectID
+                    
+                    print(existingLocation.firstName +  " " + existingLocation.lastName)
+                    
+                    
+                    OTMClient.shared.sendNewStudentLocationToAPI(withMethod: Constants.HTTPMethod.Put, studentLocation: selectedPin, postNewCompletionHandler: { (succcess, errorString) in
+                        
+                        DispatchQueue.main.async {
+                            self.undimScreenAndRemoveActivitySpinner()
+                            
+                            if success {
+                                NotificationCenter.default.post(Constants.CustomNotification.UpdateNotification)
+                                
+                                // Successfully updated location
+                                let successAlert = UIAlertController(title: "Success!", message: "You've updated your location", preferredStyle: .alert)
+                                
+                                self.present(successAlert, animated: true, completion: { [unowned self] in
+                                    
+                                    DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: {
+                                        
+                                        successAlert.dismiss(animated: true)
+                                        
+                                        self.presentingViewController?.dismiss(animated: true)
+                                    })
+                                })
+                            }
+                            else {
+                                // Failed to PUT new location
+                                self.presentAlertWith(title: errorString ?? "Unknown error", message: "")
+                            }
+                        }
+                    })
                 }
-                
-                // 2. Call post method on chare OTMClient
-                
-                // 3. Handle success or failures
-                
-                // 4. navigate back to map view in tabBarController
             }
             else if let errorString = errorString {
-                // TODO: Flow options?
-                self.presentAlertWith(title: errorString, message: "")
-                print("No success in set location add location map controller")
+                
+                DispatchQueue.main.async {
+                    self.undimScreenAndRemoveActivitySpinner()
+                    
+                    // TODO: Flow options? Instructions
+                    self.presentAlertWith(title: errorString, message: "")
+                    print("No success in set location add location map controller")
+                }
+            }
+            else {
+                DispatchQueue.main.async {
+                    self.undimScreenAndRemoveActivitySpinner()
+                    print("Something went very wrong in setLocationTapped addLocationMapViewController")
+                }
             }
         }
     }
     
 }
+
+// MARK: - Map View Delegate
 
 extension OTMAddLocationMapViewController: MKMapViewDelegate {
     

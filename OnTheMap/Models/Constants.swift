@@ -50,6 +50,7 @@ struct Constants {
     struct HTTPMethod {
         static let Post = "POST"
         static let Delete = "DELETE"
+        static let Put = "PUT"
     }
     
     struct DictionaryKey {
@@ -57,6 +58,7 @@ struct Constants {
         static let ID = "id"
         static let Account = "account"
         static let Key = "key"
+        static let ExpirationDate = "expiration"
     }
     
     struct StudentInformationKey {
@@ -75,6 +77,7 @@ struct Constants {
     struct UserDefaultsKey {
         static let SessionID =  "sessionID"
         static let AccountKey = "accountKey"
+        static let SessionExpirationDate = "sessionExpirationDate"
     }
     
     struct Identifier {
@@ -83,6 +86,10 @@ struct Constants {
         static let CookieTokenName = "XSRF-TOKEN"
         static let AnnotationView = "annotationView"
         static let addLocationMapSeque = "addLocationMapSegue"
+    }
+    
+    struct CustomNotification {
+        static let UpdateNotification = Notification.init(name: Notification.Name(rawValue:"shouldUpdateData"))
     }
     
     struct CustomColor {

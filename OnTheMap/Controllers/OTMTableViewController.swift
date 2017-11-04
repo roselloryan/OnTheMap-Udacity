@@ -17,8 +17,12 @@ class OTMTableViewController: UITableViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         // Map view controller calls this first, but just in case call it here if needed.
-        if dataStore.studentLocations.isEmpty {
+        if dataStore.shouldCallForUdates {
             getLocationDataWithUIEffectAndSpinner()
         }
     }
@@ -96,7 +100,7 @@ class OTMTableViewController: UITableViewController {
                 else if success {
                     
                     OTMClient.shared.logoutOfFacebook()
-                    OTMClient.shared.removeSessionIDAndAccountKeyFromUserDefaults()
+                    OTMClient.shared.removeSessionIDExpirationDateAndAccountKeyFromUserDefaults()
                     
                     self.navigationController?.tabBarController?.navigationController?.popToRootViewController(animated: true)
                 }
@@ -117,7 +121,7 @@ class OTMTableViewController: UITableViewController {
     
     // MARK: - Data from network method
     
-    func getLocationDataWithUIEffectAndSpinner() {
+    func getLocationDataWithUIEffectAndSpinner() { 
         
         deactivateUIForRefresh()
         
@@ -141,6 +145,7 @@ class OTMTableViewController: UITableViewController {
                     self.activateUI()
                
                     // Handle new data
+                    self.dataStore.shouldCallForUdates = false
                     self.dataStore.studentLocations = locations
                     self.tableView.reloadData()
                 }

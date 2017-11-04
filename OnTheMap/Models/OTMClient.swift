@@ -10,6 +10,7 @@ class OTMClient: NSObject {
     
     var session = URLSession.shared
     var sessionID: String? = nil
+    var sessionExpirationDate: String? = nil
     var accountKey: String? = nil
     
     
@@ -66,23 +67,34 @@ class OTMClient: NSObject {
                 }
                 
                 // Handle parsed response
-                guard let sessionID = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as! NSDictionary)[Constants.DictionaryKey.ID] as? String  else {
+                guard let sessionDict = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as? NSDictionary) else {
+                    completionHandler(false, "No session dictionary in getSessionIdWith(email:password:)")
+                    return
+                }
+                
+                guard let sessionID = sessionDict[Constants.DictionaryKey.ID] as? String  else {
                     //TODO: Handle issue
                     // What does a bad response look like?
                     completionHandler(false, "Did not recive session id in getSessionIdWith(email:password:)")
                     return
                 }
                 
-                guard let accountKey = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as! NSDictionary)[Constants.DictionaryKey.Key] as? String else {
+                guard let accountKey = sessionDict[Constants.DictionaryKey.Key] as? String else {
                     //TODO: Handle issue
                     // What does a bad response look like?
                     completionHandler(false, "Did not recive Account key in getSessionIdWith(email:password:)")
                     return
                 }
                 
+                guard let expirationDate = sessionDict[Constants.DictionaryKey.ExpirationDate] as? String else {
+                    completionHandler(false, "No expiration date in getSessionIdWith(email:password:)")
+                    return
+                }
+                
                 self.sessionID = sessionID
                 self.accountKey = accountKey
-                self.addSessionIDAndAccountKeyToUserDefaults(sessionID: sessionID, acountKey: accountKey)
+                self.sessionExpirationDate = expirationDate
+                self.addSessionIDExpirationDateAndAccountKeyToUserDefaults(sessionID: sessionID, expirationDate: expirationDate, acountKey: accountKey)
                 
                 completionHandler(true, nil)
             })
@@ -124,7 +136,17 @@ class OTMClient: NSObject {
                 }
                 
                 // Handle parsed response
-                guard let sessionID = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as! NSDictionary)[Constants.DictionaryKey.ID] as? String else {
+                guard let sessionDict = ((result as! NSDictionary)[Constants.DictionaryKey.Session] as? NSDictionary) else {
+                    completionHandler(false, "No session dictionary in getSessionIdWith(email:password:)")
+                    return
+                }
+                
+                guard let accountDict = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as? NSDictionary) else {
+                    completionHandler(false, "No session dictionary in getSessionIdWith(email:password:)")
+                    return
+                }
+                
+                guard let sessionID = sessionDict[Constants.DictionaryKey.ID] as? String else {
                     
                     //TODO: Handle issue
                     // What does a bad response look like?
@@ -132,8 +154,13 @@ class OTMClient: NSObject {
                     return
                 }
                 
-                guard let accountKey = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as! NSDictionary)[Constants.DictionaryKey.Key] as? String else {
-                    
+                guard let expirationDate = sessionDict[Constants.DictionaryKey.ExpirationDate] as? String else {
+                    completionHandler(false, "No expiration date in getSessionIDWithFacebookAccessToken()")
+                    return
+                }
+                
+                
+                guard let accountKey = accountDict[Constants.DictionaryKey.Key] as? String else {
                     //TODO: Handle issue
                     // What does a bad response look like?
                     completionHandler(false, "No account key in getSessionIDWithFacebookAccessToken()")
@@ -142,7 +169,8 @@ class OTMClient: NSObject {
                 
                 self.sessionID = sessionID
                 self.accountKey = accountKey
-                self.addSessionIDAndAccountKeyToUserDefaults(sessionID: sessionID, acountKey: accountKey)
+                self.sessionExpirationDate = expirationDate
+                self.addSessionIDExpirationDateAndAccountKeyToUserDefaults(sessionID: sessionID, expirationDate:    expirationDate, acountKey: accountKey)
                 
                 completionHandler(true, nil)
             })
@@ -212,6 +240,7 @@ class OTMClient: NSObject {
         // TODO: This is dangerous make it a constant
         let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + accountKey + "%22%7D"
         
+        //Test URL
 //        let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + "10529458535" + "%22%7D"
         
         let request = NSMutableURLRequest(url: URL(string: urlString)!)
@@ -317,9 +346,8 @@ class OTMClient: NSObject {
                 }
                 
                 if let result = result {
-                    // TODO: What do we want from the delete parsed result? Success?
-                    print("Result from delete Udacity session:")
-                    print(result)
+
+                    print("Result from delete Udacity session:\n\(result)")
                     deleteSessionCompletionHandler(true, nil)
                 }
             })
@@ -328,7 +356,7 @@ class OTMClient: NSObject {
         
     }
     
-    func postNewStudentLocation(_ studentLocation: OTMStudentInformation,  postNewCompletionHandler: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
+    func sendNewStudentLocationToAPI(withMethod httpMethod: String, studentLocation: OTMStudentInformation,  postNewCompletionHandler: @escaping (_ success: Bool, _ errorString: String?) -> Void) {
         
         OTMClient.shared.getUserInfo { (userInfoDict, errorString) in
             
@@ -352,13 +380,15 @@ class OTMClient: NSObject {
                     return
             }
             
-            guard let url = URL(string: Constants.Url.ApiHost + Constants.Url.ApiPath + Constants.Url.StudentLocationsPath) else {
-                postNewCompletionHandler(false, "Sorry, url failed...")
+            guard let url = URL(string: Constants.Url.ApiHost + Constants.Url.ApiPath + Constants.Url.StudentLocationsPath + (httpMethod == Constants.HTTPMethod.Put ? "/" + studentLocation.objectID : "")) else {
+                postNewCompletionHandler(false, "URL failed...")
                 return
             }
             
+            print(url.absoluteString)
+            
             var request = URLRequest(url: url)
-            request.httpMethod = Constants.HTTPMethod.Post
+            request.httpMethod = httpMethod
             request.addValue( Constants.HeaderValues.AppID, forHTTPHeaderField: Constants.HeaderKeys.AppID)
             request.addValue(Constants.HeaderValues.APIKey, forHTTPHeaderField: Constants.HeaderKeys.APIKey)
             request.addValue(Constants.HeaderValues.ApplicationJson, forHTTPHeaderField: Constants.HeaderKeys.ContentType)
@@ -397,20 +427,24 @@ class OTMClient: NSObject {
                     return
                 }
                 
-                // Parse data
-                self.convertDataWithCompletionHandler(data, completionHandlerForConvertData: { (result, error) in
-                    
-                    if let error = error {
-                        postNewCompletionHandler(false, error.localizedDescription)
-                        return
-                    }
-                    // Handle success
-                    if let result = result {
-                        print("Result from post new student location:")
-                        print(result)
-                        postNewCompletionHandler(true, nil)
-                    }
-                })
+                
+                // TODO: Make this work!
+                // Parse results NOT from Udacity API. Do not remove first 5 characters.
+                var parsedResult: AnyObject! = nil
+                do {
+                    parsedResult = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as AnyObject
+                }
+                catch {
+                    print("Could not parse data in sendNewStudentLocation")
+                    postNewCompletionHandler(false, "Could not parse data in sendNewStudentLocation")
+                    return
+                }
+                
+                // Handle success
+                if let parsedResult = parsedResult {
+                    print("Result from post new student location:\n\(parsedResult)")
+                    postNewCompletionHandler(true, nil)
+                }
             }
             task.resume()
         }
@@ -537,15 +571,17 @@ class OTMClient: NSObject {
         UserProfile.current = nil
     }
     
-    func addSessionIDAndAccountKeyToUserDefaults(sessionID: String, acountKey: String) {
+    func addSessionIDExpirationDateAndAccountKeyToUserDefaults(sessionID: String, expirationDate: String, acountKey: String) {
         UserDefaults.standard.set(sessionID, forKey: Constants.UserDefaultsKey.SessionID)
+        UserDefaults.standard.set(expirationDate, forKey: Constants.UserDefaultsKey.SessionExpirationDate)
         UserDefaults.standard.set(accountKey, forKey: Constants.UserDefaultsKey.AccountKey)
     }
     
     // Delete session id from user defaults
-    func removeSessionIDAndAccountKeyFromUserDefaults() {
+    func removeSessionIDExpirationDateAndAccountKeyFromUserDefaults() {
         UserDefaults.standard.removeObject(forKey: Constants.UserDefaultsKey.SessionID)
         UserDefaults.standard.removeObject(forKey: Constants.UserDefaultsKey.AccountKey)
+        UserDefaults.standard.removeObject(forKey: Constants.UserDefaultsKey.SessionExpirationDate)
     }
 }
 

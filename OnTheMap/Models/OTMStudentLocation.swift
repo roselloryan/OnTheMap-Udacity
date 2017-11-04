@@ -15,16 +15,16 @@ class OTMStudentInformation: NSObject, MKAnnotation {
     var title: String?
     var subtitle: String?
     
-    let createdAt: String
-    let updatedAt: String
-    let objectID: String
-    let uniqueKey: String
+    var createdAt: String
+    var updatedAt: String
+    var objectID: String
+    var uniqueKey: String
     
-    let firstName: String
-    let lastName: String
+    var firstName: String
+    var lastName: String
     
-    let mapString: String?
-    let mediaURL: String?
+    var mapString: String?
+    var mediaURL: String?
     
     
     init(createdAt: String, updatedAt: String, objectID: String, firstName: String, lastName: String, latitude: Double, longitude: Double, mapString: String?, mediaURL: String?, uniqueKey: String) {
