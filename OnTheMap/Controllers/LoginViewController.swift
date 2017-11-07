@@ -33,24 +33,26 @@ class LoginViewController: UIViewController {
         
         navigationController?.navigationBar.isHidden = true
         
-        // TODO: fix login button alignment on right
-        
-        // TODO: check if session is expired. :(
-        // TODO: Add screen dimming and ui adjustments
+    
+        // Check if user has logged in and if session has not exired
         if UserDefaults.standard.string(forKey: Constants.UserDefaultsKey.SessionID) != nil {
-            if let dateString = UserDefaults.standard.string(forKey: Constants.UserDefaultsKey.SessionExpirationDate) {
+            
+            if var dateString = UserDefaults.standard.string(forKey: Constants.UserDefaultsKey.SessionExpirationDate) {
                 
-                let dateFormatter = DateFormatter()
+                // Remove partial seconds for ISO8601 formatter to return Swift Date
+                dateString.removeSubrange((dateString.index(dateString.endIndex, offsetBy: -8))...dateString.index(dateString.endIndex, offsetBy: -2))
                 
-                print(dateString)
-                print(Date())
+                let dateFormatter = ISO8601DateFormatter()
                 
-                if let  expirationDate = dateFormatter.date(from: dateString) {
+                if let  swiftExpirationDate = dateFormatter.date(from: dateString) {
                 
-                    if expirationDate < Date() {
-                        print(expirationDate)
-                        print(Date())
+                    if swiftExpirationDate > Date() {
+                        
                         performSegue(withIdentifier: Constants.Identifier.MainSegue, sender: self)
+                    }
+                    else {
+                        presentAlertWith(title: "Session has expired", message: "Please login")
+                        print("session expired. Login required.")
                     }
                 }
             }
@@ -71,6 +73,7 @@ class LoginViewController: UIViewController {
         passwordTextField.resignFirstResponder()
     }
 
+    // MARK: - Button Methods
     @IBAction func loginButtonTapped(_ sender: UIButton) {
         
         guard let email = emailTextField.text, let password = passwordTextField.text, !email.isEmpty, !password.isEmpty  else {
@@ -79,19 +82,23 @@ class LoginViewController: UIViewController {
             return
         }
         
+        dimScreenWithActivitySpinner()
+        resignAnyFirstResponder()
+        
         OTMClient.shared.getSessionIDWith(email: email, password: password) { [unowned self] (success, errorString) in
             
-            if success {
+            DispatchQueue.main.async {
                 
-                DispatchQueue.main.async {
+                self.undimScreenAndRemoveActivitySpinner()
+            
+                if success {
+                
                     self.performSegue(withIdentifier: Constants.Identifier.MainSegue, sender: self)
                     self.clearBothTextFields()
                     self.resignAnyFirstResponder()
                 }
-            }
-            else {
+                else {
                 
-                DispatchQueue.main.async {
                     self.presentAlertWith(title: errorString ?? "unknown error occured", message: "")
                     print("Error in loginButtonTapped getIDWithEmailPassword: \(errorString!)")
                 }
@@ -99,10 +106,18 @@ class LoginViewController: UIViewController {
         }
     }
     
-    // MARK: Button Methods
+
     @IBAction func signUpButtonTapped(_ sender: UIButton) {
-        // Open  https://www.udacity.com/account/auth#!/signup
-        print("Sign up button tapped.")
+        
+        if let url = URL(string: Constants.Url.SignUpUrlString) {
+            
+            UIApplication.shared.open(url, options: [:], completionHandler: { [unowned self] (success) in
+                if !success {
+                    print("url failed in sign up button")
+                    self.presentAlertWith(title: "Could not open page", message: "")
+                }
+            })
+        }
     }
     
     
@@ -185,6 +200,11 @@ extension LoginViewController: UITextFieldDelegate {
         // TODO: Reset with placeholders didEndEditing not called for both text fields
         emailTextField.text = String()
         passwordTextField.text = String()
+        
+        // Set placeholder texts attributes
+        emailTextField.attributedPlaceholder = emailAttributedString()
+        passwordTextField.attributedPlaceholder = passwordAttributedString()
+        
     }
 }
 
@@ -238,7 +258,6 @@ extension LoginViewController: LoginButtonDelegate {
         
         // Constraints
         facebookButton.heightAnchor.constraint(equalTo: loginButton.heightAnchor).isActive = true
-        facebookButton.widthAnchor.constraint(equalTo: loginButton.widthAnchor).isActive = true
         facebookButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -20).isActive =
         true
         facebookButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 0).isActive =

@@ -165,7 +165,7 @@
                             </connections>
                         </barButtonItem>
                         <rightBarButtonItems>
-                            <barButtonItem systemItem="add" id="aH4-ox-cTM">
+                            <barButtonItem image="icon_pin" id="aH4-ox-cTM">
                                 <connections>
                                     <segue destination="qfu-1z-Auj" kind="presentation" id="0wG-zs-PR1"/>
                                 </connections>
@@ -354,7 +354,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="55.666666666666664"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                     <subviews>
-                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_pin" translatesAutoresizingMaskIntoConstraints="NO" id="pxn-x7-EBl">
+                                        <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_world" translatesAutoresizingMaskIntoConstraints="NO" id="pxn-x7-EBl">
                                             <rect key="frame" x="7.9999999999999964" y="4" width="55.666666666666657" height="47.666666666666664"/>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FirstName LastName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="t40-oU-AQa">
@@ -404,7 +404,7 @@
                             </connections>
                         </barButtonItem>
                         <rightBarButtonItems>
-                            <barButtonItem systemItem="add" id="3pP-fA-0ST">
+                            <barButtonItem image="icon_pin" id="3pP-fA-0ST">
                                 <connections>
                                     <segue destination="qfu-1z-Auj" kind="presentation" id="Unj-O9-kRm"/>
                                 </connections>
@@ -512,6 +512,6 @@
         <image name="logo-u" width="62" height="62"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Unj-O9-kRm"/>
+        <segue reference="0wG-zs-PR1"/>
     </inferredMetricsTieBreakers>
 </document>

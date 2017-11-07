@@ -72,6 +72,11 @@ class OTMClient: NSObject {
                     return
                 }
                 
+                guard let accountDict = ((result as! NSDictionary)[Constants.DictionaryKey.Account] as? NSDictionary) else {
+                    completionHandler(false, "No account dictionary in getSessionIdWith(email:password:)")
+                    return
+                }
+                
                 guard let sessionID = sessionDict[Constants.DictionaryKey.ID] as? String  else {
                     //TODO: Handle issue
                     // What does a bad response look like?
@@ -79,7 +84,7 @@ class OTMClient: NSObject {
                     return
                 }
                 
-                guard let accountKey = sessionDict[Constants.DictionaryKey.Key] as? String else {
+                guard let accountKey = accountDict[Constants.DictionaryKey.Key] as? String else {
                     //TODO: Handle issue
                     // What does a bad response look like?
                     completionHandler(false, "Did not recive Account key in getSessionIdWith(email:password:)")
@@ -234,11 +239,12 @@ class OTMClient: NSObject {
         
         guard let accountKey = UserDefaults.standard.object(forKey: Constants.UserDefaultsKey.AccountKey) as? String else {
             print("No accountKey in userDefaults OTMClient getSingleStudentLocation")
+            // TODO: handle no acount key error?
             return
         }
-        
-        // TODO: This is dangerous make it a constant
-        let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + accountKey + "%22%7D"
+         
+//        let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + accountKey + "%22%7D"
+        let urlString = Constants.Url.SingleStudentLocation.replacingOccurrences(of: Constants.Url.AccountKeyToken, with: accountKey)
         
         //Test URL
 //        let urlString = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22" + "10529458535" + "%22%7D"
@@ -538,7 +544,6 @@ class OTMClient: NSObject {
         for location in locationsArray {
             
             let location = location as! NSDictionary
-            print(location)
             
             if let latitude = location[Constants.StudentInformationKey.Latitude] as? Double,
                 let longitude = location[Constants.StudentInformationKey.Longitude] as? Double,

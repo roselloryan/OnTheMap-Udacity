@@ -69,7 +69,6 @@ class OTMTableViewController: UITableViewController {
                     // Could not open url
                     self.presentAlertWith(title: "Invalid link", message: "")
                     self.tableView.deselectRow(at: indexPath, animated: true)
-                    // TODO: Add some magic to fix incomplete urls?
                 }
             })
         }

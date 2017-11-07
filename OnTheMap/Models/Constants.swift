@@ -26,6 +26,10 @@ struct Constants {
         static let ChronologicalParameter = "?order=-updatedAt"
         
         static let UdacityUserHostAndPath =  "https://www.udacity.com/api/users/"
+        
+        static let SingleStudentLocation = "https://parse.udacity.com/parse/classes/StudentLocation?where=%7B%22uniqueKey%22%3A%22<ACCOUNT_KEY>%22%7D"
+        static let AccountKeyToken = "<ACCOUNT_KEY>"
+        static let SignUpUrlString = "https://www.udacity.com/account/auth#!/signup"
     }
     
     struct HTTPBody {
